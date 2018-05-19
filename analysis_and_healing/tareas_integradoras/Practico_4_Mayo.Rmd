@@ -1,0 +1,70 @@
+---
+title: "Práctico 4 de Mayo"
+author: "Luis Epifanio - Máximo Candelero"
+date: "04 de mayo de 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ejercicios:
+
+Visualizacion es una herramienta muy importante para la generacion de intuicion, pero
+raramente uno tiene los datos en la forma necesaria. Frecuentemente se necesitara 
+crear nuevas variables o simplemente reordenarlas.
+
+Exploraremos ahora la manipulacion basica utilizando un conjunto de datos sobre los
+vuelos en Nueva York en 2013.
+
+```{r echo=FALSE}
+library(nycflights13)
+fligths<-nycflights13::flights
+fligths
+
+```
+
+## Practico 1: Entregar un Rmd donde se encuentren todos los vuelos que:
+
+- Que arribaron con un retraso de mas de dos horas.
+
+```{r echo=FALSE}
+arr_delay_120 <- fligths[fligths$arr_delay > 120, ]
+arr_delay_120[complete.cases(arr_delay_120), ]
+```
+
+- Volaron hacia Houston (IAH o HOU)
+
+```{r echo=FALSE}
+dest_Houston <- fligths[fligths$dest == 'IAH' | fligths$dest == 'HOU', ]
+dest_Houston[complete.cases(dest_Houston), ]
+```
+
+- Fueron operados por United, American o Delta.
+
+```{r echo=FALSE}
+operados_UAD <- fligths[fligths$carrier == 'UA' | fligths$carrier == 'AA' | fligths$carrier == 'DL', ]
+operados_UAD[complete.cases(operados_UAD), ]
+```
+
+- Salieron en Verano (Julio, Agosto y Septiembre)
+
+```{r echo=FALSE}
+salieron_JAS <- fligths[fligths$month == 7 | fligths$month == 8 | fligths$month == 9, ]
+salieron_JAS[complete.cases(salieron_JAS), ]
+```
+
+- Arrivaron mas de dos horas tarde, pero salieron bien.
+
+```{r echo=FALSE}
+arr_delay_120_dep_delay_0 <- fligths[fligths$arr_delay > 120 & fligths$dep_delay == 0, ]
+arr_delay_120_dep_delay_0[complete.cases(arr_delay_120_dep_delay_0), ]
+```
+
+- Salieron entre medianoche y las 6 am.
+
+```{r echo=FALSE}
+time_hour_00_06 <- fligths[fligths$time_hour >= as.POSIXct(paste(as.Date(fligths$time_hour), " 00:00:00"), tz="UTC") & fligths$time_hour <= as.POSIXct(paste(as.Date(fligths$time_hour), " 06:00:00"), tz="UTC"), ]
+time_hour_00_06[complete.cases(time_hour_00_06), ]
+```
