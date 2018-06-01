@@ -1,0 +1,85 @@
+---
+title: "Práctico 5 de Mayo"
+author: "Luis Epifanio - Máximo Candelero"
+date: "24 de mayo de 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Practico 2: Entregar un Rmd donde se:
+
+- Elija un dataset clasificado de su preferencia y area (domain expertise), aplique un metodo de clustering y/o mixtura de Gaussianas en el mismo.
+
+- RTA: Aplicamos el método K-means, sobre el dataset de consumos de bebidas alcoholicas promedio en 193 paises.
+
+```{r echo=FALSE}
+drinks <- read.csv("drinks.csv")
+print(drinks)
+```
+
+
+```{r echo=FALSE}
+set.seed(20)
+drinksCluster <- kmeans(drinks[, 2:5], 5, nstart = 20)
+drinksCluster
+```
+
+```{r echo=FALSE}
+# podemos observar los resultados también por pais
+drinksTable <- table(drinksCluster$cluster, drinks$continent)
+drinksTable
+```
+```{r echo=FALSE}
+library(ggplot2)
+drinksCluster$cluster <- as.factor(drinksCluster$cluster)
+ggplot(drinks, aes(beer_servings, wine_servings, color = drinksCluster$cluster)) + geom_point()
+```
+
+- Investigue los resultados en el meta parametro $K$ numero de cumulos e investigue posibles procesos de seleccion del mismo.
+
+```{r echo=FALSE}
+# Posibles procesos de selección de K -> https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set
+
+# Aplicamos "The elbow method"
+k.max <- 15
+data <- drinks[2:5]
+wss <- sapply(1:k.max, 
+              function(k){kmeans(data, k, nstart=50,iter.max = 15 )$tot.withinss})
+wss
+plot(1:k.max, wss,
+     type="b", pch = 19, frame = FALSE, 
+     xlab="Number of clusters K",
+     ylab="Total within-clusters sum of squares")
+```
+
+- Elabore un resumen, y selecione un mejor valor segun el/los criterios aplicados, discuta el significado de los cumulos
+encontrados.
+
+RTA: Un valor aceptable de "k" teniendo en cuenta el Metodo del codo, es 5. Esos cinco cumulos nos da 5 grupos en los cuales podemos englobar los consumos de bebidas alcoholicas promedio en 193 paises, en nuestro caso tomamos en cuenta la matriz de resultado por continente, y encontramos que continentes de Africa y Asia son los que tienen menos paises consumidores, por lo contrario Europa tiene mayoria de paises con alto consumo, Oceania y Sudamerica mayoritariamente se distribuyen con misma proporcion en los cumulos, 
+
+- Comente la influencia de la normalizacion de los datos en los resultados del clustering.
+
+RTA: Para este caso de análisis la normalización provoca datos bastantes diferentes al análisis previo, distribuidos mas proporcionalmente entre los grupos.
+
+```{r echo=FALSE}
+# normalizamos con z-scores
+drinks_n <- scale(drinks[2:5], center = TRUE, scale = TRUE)
+head(drinks_n)
+```
+```{r echo=FALSE}
+set.seed(20)
+drinksCluster_n <- kmeans(drinks_n, 5, nstart = 20)
+drinksCluster_n
+```
+```{r echo=FALSE}
+# podemos observar los resultados también por pais
+drinksTable_n <- table(drinksCluster_n$cluster, drinks$continent)
+# normalizada
+drinksTable_n
+# sin normalizar
+drinksTable
+```
+

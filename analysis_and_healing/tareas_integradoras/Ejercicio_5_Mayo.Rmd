@@ -1,0 +1,79 @@
+---
+title: "Ejercicios 05 de mayo"
+author: "Luis Epifanio - Máximo Candelero"
+date: "05 de mayo de 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Diagnosticando Cancer:
+* Investigaremos ahora la utilidad del ML para detectar cancer aplicando 
+el algoritmo kNN a mediciones de biopsias de mujeres, utilizando el 
+conjunto de datos  "Breast Cancer Winscosin Diagnostic" del
+UCI ML Repository <http://archive.ics.uci.edu/ml> que incluye 569 ejemplos
+de biopsias, en cada una se midieron 32 features  (diferentes caracteristicas de las nucleos celulares) y el diagnostico codificado como
+M (Maligno) o B (Benigno).
+
+```{r echo=FALSE}
+data <- read.csv("http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data",header=FALSE)
+data <- data[-1]
+```
+
+```{r echo=FALSE}
+normalize <- function(x) {
+  return ((x-min(x))/(max(x)-min(x)))
+}
+data_n <- as.data.frame(lapply(data[2:31], normalize))
+data_train <- data_n[1:469, ]
+data_test  <- data_n[470:569, ] 
+data_train_labels <- data[1:469, 1]
+data_test_labels  <- data[470:569, 1]
+library(class)
+data_test_pred <- knn(train=data_train, test=data_test, cl=data_train_labels, k=21)
+library(gmodels)
+CrossTable(x=data_test_labels, y=data_test_pred, prop.chisq = FALSE)
+summary(data_n$V3)
+summary(data_n$V8)
+```
+
+### Ejercicios.
+
+
++ Mejore el rendimiento utilizando una normalizacion con z-scores provista por la funcion scale() de R.
+
+```{r pressure, echo=FALSE}
+data_Z <- as.data.frame(scale(data[2:31], center = TRUE, scale = TRUE))
+data_train_Z <- data_Z[1:469, ]
+data_test_Z  <- data_Z[470:569, ] 
+library(class)
+data_test_pred_Z <- knn(train=data_train_Z, test=data_test_Z, cl=data_train_labels, k=21)
+library(gmodels)
+CrossTable(x=data_test_labels, y=data_test_pred_Z, prop.chisq = FALSE)
+summary(data_Z$V3)
+summary(data_Z$V8)
+```
+
++ Pruebe algunos valores alternativos de k=1, 5,  11, 15, 21 y seleccione el mejor valor de k.
+
+- RTA: Si tomamos como objetivo obtener menos equivocaciones, a mayor valor de k, será mejor. Pero para este dataset, con un k=5, se obtienen 4 falsos positivos, lo que para la gravedad de la situación, seríA lo mejor.
+
+```{r pressure, echo=FALSE}
+data_test_pred_Z <- knn(train=data_train_Z, test=data_test_Z, cl=data_train_labels, k=5)
+library(gmodels)
+CrossTable(x=data_test_labels, y=data_test_pred_Z, prop.chisq = FALSE)
+```
+
++ mientras termina su merecido cafe verifique si el resultado cambia utilizando paciente elegidos aleatoriamente para el conjunto de validacion.
+
+- RTA: Si cambia el resultado al alegir pacientes aleatoriamente, y con una buena diferencia
+
+```{r pressure, echo=FALSE}
+data_train_Z_random <- data_Z[sample(1:nrow(data_Z), 469, replace=FALSE),]
+data_test_Z_random <- data_Z[sample(1:nrow(data_Z), 100, replace=FALSE),]
+data_test_pred_Z <- knn(train=data_train_Z_random, test=data_test_Z_random, cl=data_train_labels, k=5)
+library(gmodels)
+CrossTable(x=data_test_labels, y=data_test_pred_Z, prop.chisq = FALSE)
+```
