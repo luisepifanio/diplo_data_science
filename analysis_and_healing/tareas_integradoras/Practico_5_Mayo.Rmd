@@ -1,6 +1,6 @@
 ---
-title: "Práctico 5 de Mayo"
-author: "Luis Epifanio - Máximo Candelero"
+title: "Pr??ctico 5 de Mayo"
+author: "Luis Epifanio - M??ximo Candelero"
 date: "24 de mayo de 2018"
 output: html_document
 ---
@@ -13,11 +13,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 - Elija un dataset clasificado de su preferencia y area (domain expertise), aplique un metodo de clustering y/o mixtura de Gaussianas en el mismo.
 
-- RTA: Aplicamos el método K-means, sobre el dataset de consumos de bebidas alcoholicas promedio en 193 paises.
+- RTA: Aplicamos el m??todo K-means, sobre el dataset de consumos de bebidas alcoholicas promedio en 193 paises.
 
 ```{r echo=FALSE}
-drinks <- read.csv("drinks.csv")
+#Nota correci??n: Una constante es que muchos paises no est??n correctamente clasificados y la generalidad
+# es para los paises de CentroAmerica y Caribe... por lo que podr??amos hacer una correci??n de los datos antes de analizarlos
+# de all?? que necesitamos
+drinks <- read.csv( "drinks.csv", header = TRUE, na.strings = c(""," ", "NaN") )
+summary(drinks)
 print(drinks)
+plot(drinks)
 ```
 
 
@@ -28,7 +33,7 @@ drinksCluster
 ```
 
 ```{r echo=FALSE}
-# podemos observar los resultados también por pais
+# podemos observar los resultados tambi??n por continente
 drinksTable <- table(drinksCluster$cluster, drinks$continent)
 drinksTable
 ```
@@ -41,7 +46,7 @@ ggplot(drinks, aes(beer_servings, wine_servings, color = drinksCluster$cluster))
 - Investigue los resultados en el meta parametro $K$ numero de cumulos e investigue posibles procesos de seleccion del mismo.
 
 ```{r echo=FALSE}
-# Posibles procesos de selección de K -> https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set
+# Posibles procesos de selecci??n de K -> https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set
 
 # Aplicamos "The elbow method"
 k.max <- 15
@@ -62,11 +67,12 @@ RTA: Un valor aceptable de "k" teniendo en cuenta el Metodo del codo, es 5. Esos
 
 - Comente la influencia de la normalizacion de los datos en los resultados del clustering.
 
-RTA: Para este caso de análisis la normalización provoca datos bastantes diferentes al análisis previo, distribuidos mas proporcionalmente entre los grupos.
+RTA: Para este caso de an??lisis la normalizaci??n provoca datos bastantes diferentes al an??lisis previo, distribuidos mas proporcionalmente entre los grupos.
 
 ```{r echo=FALSE}
 # normalizamos con z-scores
 drinks_n <- scale(drinks[2:5], center = TRUE, scale = TRUE)
+summary(drinks_n)
 head(drinks_n)
 ```
 ```{r echo=FALSE}
@@ -75,7 +81,7 @@ drinksCluster_n <- kmeans(drinks_n, 5, nstart = 20)
 drinksCluster_n
 ```
 ```{r echo=FALSE}
-# podemos observar los resultados también por pais
+# podemos observar los resultados tambi??n por pais
 drinksTable_n <- table(drinksCluster_n$cluster, drinks$continent)
 # normalizada
 drinksTable_n
